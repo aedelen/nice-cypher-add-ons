@@ -29,8 +29,8 @@
 */
 
 'use strict';
-import { UTILITIES } from './utilities.js';
-import { CYPHERADDONS } from './settings.js';
+import {UTILITIES} from './utilities.js';
+import {CYPHERADDONS} from './settings.js';
 
 /*------------------------------------------------------------------------------------------------
 ------------------------------------------ Global(es) -------------------------------------------
@@ -795,25 +795,26 @@ async function askForOptions(line, lines) {
 
 	for (const s of actor_auto_skills) {
 		if (s.flags?.[CYPHERADDONS.MODULE.NAME]?.[CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL] !== "None") {
-			let skill = existingSkills.find(sk => sk.name === s.name);
+			let skill = actor_auto_skills.find(sk => sk.name === s.name);
 
 			skill = upSkillLevel(skill, skill.flags[CYPHERADDONS.MODULE.NAME][CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL], true);
 			itemsToUpdate.push({_id: skill._id, system: skill.system, flags: skill.flags});
 		} else {
 			//Why?
-			//itemsToDelete.push(s.id);
+			itemsToDelete.push(s.id);
 		}
 	}
 	for (const crskill of crdata.skills) {
 		if (crskill) {
-			if (existingSkills.find(sk => sk.name === crskill.name)) {
+			/*if (existingSkills.find(sk => sk.name === crskill.name)) {
 				let skill = existingSkills.find(sk => sk.name === crskill.name);
 
 				skill = upSkillLevel(skill, crskill.level);
 				itemsToUpdate.push({_id: skill._id, system: skill.system, flags: skill.flags});
 			} else {
 				itemsToCreate.push(crskill.skill);
-			}
+			}*/
+			itemsToCreate.push(crskill.skill);
 		}
 	}
 
@@ -895,7 +896,7 @@ function upSkillLevel(skill, level, rollBack = false) {
 		setProperty(skill, `flags.${CYPHERADDONS.MODULE.NAME}.${CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL}`, "");
 	} else {		
 		setProperty(skill, `flags.${CYPHERADDONS.MODULE.NAME}.${CYPHERADDONS.FLAGS.CREATIONITEM}`, true);
-		setProperty(skill, `flags.${CYPHERADDONS.MODULE.NAME}.${CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL}`, skill.system.basic.rating);
+		setProperty(skill, `flags.${CYPHERADDONS.MODULE.NAME}.${CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL}`, skill.level);
 	};
 	
 	setProperty(skill, 'system.basic.rating', level);
