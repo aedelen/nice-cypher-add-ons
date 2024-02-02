@@ -789,22 +789,33 @@ async function askForOptions(line, lines) {
 
 	// Skills
 	const actor_auto_skills = actor.items.filter(i => 
-		(i.flags?.[CYPHERADDONS.MODULE.NAME]?.[CYPHERADDONS.FLAGS.CREATIONITEM] && i.type === 'skill')),
-		existingSkills = actor.items.filter(i => i.type === 'skill');
-	for (const s of actor_auto_skills) if (s.flags?.[CYPHERADDONS.MODULE.NAME]?.[CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL] !== "None") {
-		let skill = existingSkills.find(sk => sk.name === s.name);
+		(i.flags?.[CYPHERADDONS.MODULE.NAME]?.[CYPHERADDONS.FLAGS.CREATIONITEM] && i.type === 'skill'));
 
-		skill = upSkillLevel(skill, skill.flags[CYPHERADDONS.MODULE.NAME][CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL], true);		
-		itemsToUpdate.push({_id: skill._id, system: skill.system, flags: skill.flags});
-	} else itemsToDelete.push(s.id);
-	for (const crskill of crdata.skills) 
-		if (crskill) 
+	const existingSkills = actor.items.filter(i => i.type === 'skill');
+
+	for (const s of actor_auto_skills) {
+		if (s.flags?.[CYPHERADDONS.MODULE.NAME]?.[CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL] !== "None") {
+			let skill = existingSkills.find(sk => sk.name === s.name);
+
+			skill = upSkillLevel(skill, skill.flags[CYPHERADDONS.MODULE.NAME][CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL], true);
+			itemsToUpdate.push({_id: skill._id, system: skill.system, flags: skill.flags});
+		} else {
+			//Why?
+			//itemsToDelete.push(s.id);
+		}
+	}
+	for (const crskill of crdata.skills) {
+		if (crskill) {
 			if (existingSkills.find(sk => sk.name === crskill.name)) {
-				let skill = existingSkills.find(sk => sk.name === skill.name);
+				let skill = existingSkills.find(sk => sk.name === crskill.name);
 
-				skill = upSkillLevel(skill, skill.skill.system.skillLevel);
+				skill = upSkillLevel(skill, crskill.level);
 				itemsToUpdate.push({_id: skill._id, system: skill.system, flags: skill.flags});
-			} else itemsToCreate.push(crskill.skill);
+			} else {
+				itemsToCreate.push(crskill.skill);
+			}
+		}
+	}
 
 	// Abilities
 	const actor_auto_abilities = actor.items.filter(i => 
@@ -884,7 +895,7 @@ function upSkillLevel(skill, level, rollBack = false) {
 		setProperty(skill, `flags.${CYPHERADDONS.MODULE.NAME}.${CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL}`, "");
 	} else {		
 		setProperty(skill, `flags.${CYPHERADDONS.MODULE.NAME}.${CYPHERADDONS.FLAGS.CREATIONITEM}`, true);
-		setProperty(skill, `flags.${CYPHERADDONS.MODULE.NAME}.${CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL}`, system.basic.rating);
+		setProperty(skill, `flags.${CYPHERADDONS.MODULE.NAME}.${CYPHERADDONS.FLAGS.ORIGINALSKILLLEVEL}`, skill.system.basic.rating);
 	};
 	
 	setProperty(skill, 'system.basic.rating', level);
