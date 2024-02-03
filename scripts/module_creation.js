@@ -592,12 +592,13 @@ async function journalsReading(pages, actor, remove) {
 					compendium = id.split('.');
 
 				let item;
-				if (object.startsWith('@UUID['))
+				if (object.startsWith('@UUID[')) {
 					item = await fromUuid(id);
+				}
 				else if (compendium.length > 1) {
-					const pack = game.packs.find(p => p.metadata.name === compendium[1]),
-						index = pack.index.get(compendium[2]),
-						i = await pack.getDocument(index._id);
+					const pack = game.packs.find(p => p.metadata.name === compendium[1]);
+					const index = pack.index.get(compendium[2]);
+					const i = await pack.getDocument(index._id);
 					item = await game.items.fromCompendium(i);
 
 				} else item = await game.items.get(id);
